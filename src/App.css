@@ -1,0 +1,50 @@
+@font-face {
+  font-family: "Helvetica-Bold";
+  src: url("/public/Font/Helvetica-Bold-Font.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Helvetica-Light";
+  src: url("/public/Font/Helvetica Light Regular.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Helvetica-Regular";
+  src: url("/public/Font/Helvetica Regular.otf") format("opentype");
+}
+
+.Helvetica-Bold {
+  font-family: "Helvetica-Bold", sans-serif;
+}
+
+.Helvetica-Light {
+  font-family: "Helvetica-Light", sans-serif;
+}
+
+.Helvetica-Regular {
+  font-family: "Helvetica-Regular", sans-serif;
+}
+
+.color {
+  color: #ff2800;
+}
+
+/* Custom scrollbar styles */
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: red white; /* Scrollbar thumb color and track color */
+}
+
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px; /* Adjust width of scrollbar */
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: white; /* Track color */
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background-color: red; /* Scrollbar thumb color */
+  border-radius: 50px; /* Make the scrollbar thumb rounded */
+  border: 2px solid white; /* Border around scrollbar thumb */
+}
