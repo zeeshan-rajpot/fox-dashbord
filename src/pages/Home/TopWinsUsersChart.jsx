@@ -11,7 +11,7 @@ const TopWinsUsersChart = () => {
     labels: ['john', 'swan', 'malik', 'neo', 'emma', 'liam', 'sophia', 'oliver', 'mia'],
     datasets: [
       {
-        label: 'Wins',
+        label: 'Workouts',
         data: [200, 150, 80, 120, 60, 100, 50, 75, 30, 110, 90],
         backgroundColor: '#FF280066',
       
