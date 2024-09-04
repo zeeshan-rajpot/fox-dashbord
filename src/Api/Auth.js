@@ -5,7 +5,7 @@ export const signup = async (userData) => {
     const response = await api.post("/user/register", userData);
     return response.data;
   } catch (error) {
-    throw error ? error.message : new Error("Signup failed");
+    throw error.message;
   }
 };
 
@@ -15,7 +15,7 @@ export const login = async (userData) => {
     const response = await api.post("/user/login", userData);
     return response.data;
   } catch (error) {
-    throw error ? error.message : new Error("Login failed");
+    throw error 
   }
 };
 

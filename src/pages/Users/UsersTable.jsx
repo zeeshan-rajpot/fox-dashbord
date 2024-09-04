@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { formatDistanceToNow } from "date-fns";
 
 const UsersTable = ({ users }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
 
-  // Calculate pagination details
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
@@ -28,25 +28,39 @@ const UsersTable = ({ users }) => {
         </thead>
         <tbody>
           {currentUsers.map((user) => (
-            <tr key={user.id} className="border-b hover:bg-gray-100">
-              <td className="py-2 px-4 text-gray-500">{user.id}</td>
+            <tr key={user._id} className="border-b hover:bg-gray-100">
+              <td className="py-2 px-4 text-gray-500">{user._id}</td>
               <td className="py-2 px-4 flex items-center">
                 <img
                   src={user.avatar}
                   alt={user.name}
                   className="w-8 h-8 rounded-full mr-2"
                 />
-                <div className='flex flex-col'>
-                <span className='ml-1'>{user.name}</span>
-                <span className="text-gray-500 ml-1">{user.email}</span>
+                <div className="flex flex-col">
+                  <span className="ml-1">{user.username}</span>
+                  <span className="text-gray-500 ml-1">{user.email}</span>
                 </div>
-            
               </td>
-              <td className="py-2 px-4 text-gray-500">{user.lastActive}</td>
-              <td className="py-2 px-4 text-gray-500 text-center">{user.totalWorkouts}</td>
-              <td className="py-2 px-4 text-gray-500 text-center">{user.weeklyWorkouts}</td>
-              <td className="py-2 px-4 text-gray-500 text-center">{user.streaks}</td>
-              <td className="py-2 px-4 text-gray-500 text-center">{user.personalBest}</td>
+              <td className="py-2 px-4 text-gray-500">
+                {" "}
+                {user.lastActiveAt
+                  ? formatDistanceToNow(new Date(user.lastActiveAt), {
+                      addSuffix: true,
+                    })
+                  : "N/A"}
+              </td>
+              <td className="py-2 px-4 text-gray-500 text-center">
+                {user.totalWorkouts}
+              </td>
+              <td className="py-2 px-4 text-gray-500 text-center">
+                {user.workoutsInWeek}
+              </td>
+              <td className="py-2 px-4 text-gray-500 text-center">
+                {user.streaks}
+              </td>
+              <td className="py-2 px-4 text-gray-500 text-center">
+                {user.personalBest}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -54,7 +68,8 @@ const UsersTable = ({ users }) => {
 
       <div className="flex justify-between items-center mt-4">
         <p className="text-sm text-gray-600">
-          Showing {Math.min(indexOfLastUser, users.length)} of {users.length} users
+          Showing {Math.min(indexOfLastUser, users.length)} of {users.length}{" "}
+          users
         </p>
         <div className="flex space-x-2 ">
           <button
@@ -69,7 +84,9 @@ const UsersTable = ({ users }) => {
               key={index + 1}
               onClick={() => paginate(index + 1)}
               className={`px-3 py-1 rounded-full ${
-                currentPage === index + 1 ? 'bg-[#FF2800] text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                currentPage === index + 1
+                  ? "bg-[#FF2800] text-white"
+                  : "bg-gray-200 text-gray-600 hover:bg-gray-300"
               }`}
             >
               {index + 1}
@@ -89,5 +106,3 @@ const UsersTable = ({ users }) => {
 };
 
 export default UsersTable;
-
-

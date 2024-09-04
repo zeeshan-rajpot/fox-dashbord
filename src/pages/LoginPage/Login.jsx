@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../Api/Auth";  
-import ForgetPassword from "./ForgetPassword"; 
+import { login } from "../../Api/Auth";
+import ForgetPassword from "./ForgetPassword";
 
 function Login() {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const [showModal, setShowModal] = useState(false);
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
 
   const handleModalClose = () => {
     setShowModal(false);
@@ -20,18 +24,23 @@ function Login() {
   const onSubmit = async (data) => {
     try {
       const response = await login(data);
-      // console.log(response);  
-      navigate("/dashboard"); 
+      console.log(response.message);  
+      navigate("/dashboard");
+  
+      sessionStorage.setItem("token", response.token);  
     } catch (error) {
-      console.error("Login failed", error);
-    
+      console.log(error.message);
     }
   };
+  
 
   return (
     <>
       <section className="h-screen w-screen flex justify-center items-center">
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center px-4 md:px-8 lg:px-12 rounded-xl">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col items-center px-4 md:px-8 lg:px-12 rounded-xl"
+        >
           <div className="flex justify-center items-center">
             <img src="/image 12.png" alt="" className="h-12" />
           </div>
@@ -50,7 +59,9 @@ function Login() {
                   placeholder="Email"
                 />
               </div>
-              {errors.email && <span className="text-red-500 text-sm">Email is required</span>}
+              {errors.email && (
+                <span className="text-red-500 text-sm">Email is required</span>
+              )}
 
               <div className="bg-[#FAFAFA] flex items-center p-2 md:p-3 rounded-full shadow-md h-[50px] md:h-[55px] lg:h-[59px] w-full md:w-[360px] lg:w-[460px]">
                 <img src="/Frame 34.png" alt="" className="h-8 w-8" />
@@ -67,7 +78,11 @@ function Login() {
                   className="cursor-pointer h-5 w-5"
                 />
               </div>
-              {errors.password && <span className="text-red-500 text-sm">Password is required</span>}
+              {errors.password && (
+                <span className="text-red-500 text-sm">
+                  Password is required
+                </span>
+              )}
 
               <h1
                 className="text-right font-normal text-sm md:text-base text-[#FF2800] cursor-pointer"
@@ -78,7 +93,10 @@ function Login() {
             </div>
 
             <div className="p-3 md:p-5 w-full">
-              <button type="submit" className="h-[45px] md:h-[50px] lg:h-[55px] w-full text-sm md:text-base lg:text-lg text-white bg-[#FF2800] shadow-md rounded-full md:w-[320px] lg:w-[400px] xl:w-[459px] hover:bg-red-500">
+              <button
+                type="submit"
+                className="h-[45px] md:h-[50px] lg:h-[55px] w-full text-sm md:text-base lg:text-lg text-white bg-[#FF2800] shadow-md rounded-full md:w-[320px] lg:w-[400px] xl:w-[459px] hover:bg-red-500"
+              >
                 Login
               </button>
             </div>

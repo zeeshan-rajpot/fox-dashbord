@@ -1,16 +1,22 @@
 import {useState, useEffect} from "react";
 import { getUsersWeekly } from "../../Api/Users";
+import SkeletonLoader from "../Users/SkeletonLoader";
 
 const UsersWorkoutTable = () => {
+  
   const [usersData, setUsersData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const getUsersDataWeekly = async () => {
     try {
       const response = await getUsersWeekly();
-      console.log(response.data);
-      setUsersData(response.data);
+      console.log(response);
+      setUsersData(response);
     } catch (error) {
-      console.error("Error", error);
+      // console.error("Error", error);
+      toast.error("Failed to fetch users. Please try again later.");
+    }finally {
+      setIsLoading(false);
     }
   };
 
@@ -18,49 +24,9 @@ const UsersWorkoutTable = () => {
     getUsersDataWeekly()
   }, []);
 
-  // const usersData = [
-  //   {
-  //     name: 'Roselle Ehrman',
-  //     email: 'Email',
-  //     image: '/Ellipse 12 (3).svg', // Replace with the actual path
-  //     goal: 561,
-  //     completed: 561,
-  //     streak: 4,
-  //   },
-  //   {
-  //     name: 'Jone Smith',
-  //     email: 'Email',
-  //     image: '/Ellipse 12 (3).svg', // Replace with the actual path
-  //     goal: 703,
-  //     completed: 703,
-  //     streak: 2,
-  //   },
-  //   {
-  //     name: 'Darron Handler',
-  //     email: 'Email',
-  //     image: '/Ellipse 12 (3).svg', // Replace with the actual path
-  //     goal: 583,
-  //     completed: 583,
-  //     streak: 3,
-  //   },
-  //   {
-  //     name: 'Leatrice Kulik',
-  //     email: 'Email',
-  //     image: '/Ellipse 12 (3).svg', // Replace with the actual path
-  //     goal: 185,
-  //     completed: 185,
-  //     streak: 5,
-  //   },
-  //   {
-  //     name: 'Roselle Ehrman',
-  //     email: 'Email',
-  //     image: '/Ellipse 12 (3).svg', // Replace with the actual path
-  //     goal: 540,
-  //     completed: 540,
-  //     streak: 8,
-  //   },
-  // ];
-
+  console.log("userData", usersData);
+  
+  
   return (
     <>
       <h2 className="text-xl font-semibold mb-4">Users Weekly Workout Goal</h2>
@@ -83,32 +49,39 @@ const UsersWorkoutTable = () => {
             </tr>
           </thead>
           <tbody>
-            {usersData.map((user) => (
-              <tr key={user._id} className="border-b last:border-b-0">
-                <td className="px-6 py-4 whitespace-nowrap flex items-center">
-                  <img
-                    src={user.image ?? "/"}
-                    alt={user.username}
-                    className="w-10 h-10 rounded-full mr-4"
-                  />
-                  <div>
-                    <div className="text-sm font-medium text-gray-900">
-                      {user.username}
-                    </div>
-                    <div className="text-sm text-gray-500">{user.email}</div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900">
-                  {user.weeklyWorkOutGoal}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900">
-                  {user.totalWorkouts}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900">
-                  {user.streaks}
-                </td>
-              </tr>
-            ))}
+          {isLoading ? (
+  <SkeletonLoader count={3} /> // Show skeleton loader when loading
+) : usersData.length > 0 ? ( // Check if there are users to display
+  usersData.map((user) => (
+    <tr key={user._id} className="border-b last:border-b-0">
+      <td className="px-6 py-4 whitespace-nowrap flex items-center">
+        <img
+          src={user.image ?? "/"} // Use a fallback image if user.image is null or undefined
+          alt={user.username}
+          className="w-10 h-10 rounded-full mr-4"
+        />
+        <div>
+          <div className="text-sm font-medium text-gray-900">
+            {user.username}
+          </div>
+          <div className="text-sm text-gray-500">{user.email}</div>
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900">
+        {user.weeklyWorkOutGoal}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900">
+        {user.totalWorkouts}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900">
+        {user.streaks}
+      </td>
+    </tr>
+  ))
+) : (
+  <p>No users found</p> // Show a message if there are no users
+)}
+
           </tbody>
         </table>
       </div>

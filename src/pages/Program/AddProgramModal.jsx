@@ -1,19 +1,25 @@
-import React, { useState } from "react";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { addProgram } from "../../Api/Programs";
 
-const AddProgramModal = ({ isOpen, onClose, onAddProgram }) => {
-  const [programTitle, setProgramTitle] = useState("");
-  const [startDate, setStartDate] = useState("");
+const AddProgramModal = ({ isOpen, onClose }) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
-  if (!isOpen) return null;
-
-  const handleAddProgram = () => {
-    if (programTitle && startDate) {
-      onAddProgram({ title: programTitle, date: startDate });
+  const onSubmit = async (data) => {
+    try {
+      const response = await addProgram(data);
+      console.log(response);
       onClose();
-    } else {
-      alert("Please fill in all fields");
+    } catch (error) {
+      console.log(error.message);
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -25,36 +31,48 @@ const AddProgramModal = ({ isOpen, onClose, onAddProgram }) => {
           <img src="/ic_round-close.svg" alt="close_icon" />
         </button>
         <h2 className="text-2xl font-semibold text-center mb-4">Add Program</h2>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">
-            Program Title
-          </label>
-          <input
-            type="text"
-            value={programTitle}
-            onChange={(e) => setProgramTitle(e.target.value)}
-            className="w-full p-2 border rounded-lg focus:outline-none focus:ring focus:ring-red-500"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Start Date</label>
-          <div className="flex items-center">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1">
+              Program Title
+            </label>
             <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              {...register("title", { required: "Program title is required" })}
+              type="text"
               className="w-full p-2 border rounded-lg focus:outline-none focus:ring focus:ring-red-500"
             />
+            {errors.programTitle && (
+              <span className="text-red-500 text-sm">
+                {errors.programTitle.message}
+              </span>
+            )}
           </div>
-        </div>
-        <div className="flex justify-center">
-          <button
-            onClick={handleAddProgram}
-            className=" bg-red-500 text-white py-2 px-8 rounded-full hover:bg-red-600 transition duration-200 "
-          >
-            Add program
-          </button>
-        </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1">Start Date</label>
+            <div className="flex items-center">
+              <input
+                {...register("startDate", {
+                  required: "Start date is required",
+                })}
+                type="date"
+                className="w-full p-2 border rounded-lg focus:outline-none focus:ring focus:ring-red-500"
+              />
+            </div>
+            {errors.startDate && (
+              <span className="text-red-500 text-sm">
+                {errors.startDate.message}
+              </span>
+            )}
+          </div>
+          <div className="flex justify-center">
+            <button
+              type="submit"
+              className="bg-red-500 text-white py-2 px-8 rounded-full hover:bg-red-600 transition duration-200"
+            >
+              Add Program
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
