@@ -2,7 +2,8 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { addProgram } from "../../Api/Programs";
 
-const AddProgramModal = ({ isOpen, onClose }) => {
+
+const AddProgramModal = ({ isOpen, onClose, updateProgram }) => {
   const {
     register,
     handleSubmit,
@@ -14,6 +15,7 @@ const AddProgramModal = ({ isOpen, onClose }) => {
       const response = await addProgram(data);
       console.log(response);
       onClose();
+      updateProgram();
     } catch (error) {
       console.log(error.message);
     }

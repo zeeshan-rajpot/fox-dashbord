@@ -12,7 +12,7 @@ const ProgramDetails = () => {
   const closeModal = () => setIsModalOpen(false);
 
   if (!program) {
-    return <p>No program data available.</p>; // Fallback if no program data is passed
+    return <p>No program data available.</p>; 
   }
 
   return (

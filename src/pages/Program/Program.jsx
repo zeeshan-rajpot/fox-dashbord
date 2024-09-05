@@ -2,24 +2,28 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../../components/SideBar";
 import AddProgramModal from "./AddProgramModal";
 import { Link, useNavigate } from "react-router-dom";
-import { getPrograms } from "../../Api/Programs"; // Assume this function makes the API call
+import { getPrograms } from "../../Api/Programs";
+import ProgramSkeleton from "./ProgramSkeleton";
 
 function Program() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [programData, setProgramData] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchPrograms = async () => {
-      try {
-        const response = await getPrograms(); // Fetch programs from the API
-        setProgramData(response);
-      } catch (error) {
-        console.error("Failed to fetch programs", error);
-      }
-    };
+  const fetchPrograms = async () => {
+    try {
+      const response = await getPrograms();
+      setProgramData(response);
+    } catch (error) {
+      console.error("Failed to fetch programs", error);
+    }finally{
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchPrograms();
   }, []);
 
@@ -73,51 +77,55 @@ function Program() {
               </div>
             </div>
           </div>
-          <div className="flex flex-col px-4">
-            {programData.map((program, index) => (
-              <div
-                key={program._id}
-                className="flex flex-col md:flex-row justify-between p-4 w-full bg-white rounded-2xl shadow mb-4 relative cursor-pointer"
-                onClick={() => handleProgramClick(program)} // Pass the clicked program data to ProgramDetails
-              >
-                <div className="flex justify-between items-center w-full mb-4 md:mb-0">
-                  <h1 className="text-sm md:text-base">
-                    {new Date(program.startDate).toLocaleDateString()}
-                  </h1>
-                  <h2 className="text-sm md:text-base">{program.title}</h2>
-                  <div
-                    className="flex justify-end md:justify-center cursor-pointer relative"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent the dropdown from closing the program click
-                      toggleDropdown(index);
-                    }}
-                  >
-                    <img
-                      src="/iconamoon_menu-kebab-vertical-bold.png"
-                      alt="Menu"
-                      className="h-5 w-5 md:h-6 md:w-6"
-                    />
-                    {dropdownOpen === index && (
-                      <div className="absolute right-0 mt-6 w-40 bg-white rounded-lg shadow-lg z-50">
-                        <button
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          onClick={() => handleEdit(index)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          onClick={() => handleDelete(index)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
+          {isLoading ? (
+            <ProgramSkeleton />
+          ) : (
+            <div className="flex flex-col px-4">
+              {programData.map((program, index) => (
+                <div
+                  key={program._id}
+                  className="flex flex-col md:flex-row justify-between p-4 w-full bg-white rounded-2xl shadow mb-4 relative cursor-pointer"
+                  onClick={() => handleProgramClick(program)} // Pass the clicked program data to ProgramDetails
+                >
+                  <div className="flex justify-between items-center w-full mb-4 md:mb-0">
+                    <h1 className="text-sm md:text-base">
+                      {new Date(program.startDate).toLocaleDateString()}
+                    </h1>
+                    <h2 className="text-sm md:text-base">{program.title}</h2>
+                    <div
+                      className="flex justify-end md:justify-center cursor-pointer relative"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent the dropdown from closing the program click
+                        toggleDropdown(index);
+                      }}
+                    >
+                      <img
+                        src="/iconamoon_menu-kebab-vertical-bold.png"
+                        alt="Menu"
+                        className="h-5 w-5 md:h-6 md:w-6"
+                      />
+                      {dropdownOpen === index && (
+                        <div className="absolute right-0 mt-6 w-40 bg-white rounded-lg shadow-lg z-50">
+                          <button
+                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => handleEdit(index)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => handleDelete(index)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -125,7 +133,7 @@ function Program() {
       <AddProgramModal
         isOpen={isModalOpen}
         onClose={closeModal}
-        onAddProgram={(newProgram) => setProgramData([...programData, newProgram])}
+        updateProgram={fetchPrograms}
       />
     </>
   );
