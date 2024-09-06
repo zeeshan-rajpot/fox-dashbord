@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../../components/SideBar";
 import AddProgramModal from "./AddProgramModal";
-import { Link, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import { getPrograms } from "../../Api/Programs";
 import ProgramSkeleton from "./ProgramSkeleton";
 
@@ -85,7 +85,7 @@ function Program() {
                 <div
                   key={program._id}
                   className="flex flex-col md:flex-row justify-between p-4 w-full bg-white rounded-2xl shadow mb-4 relative cursor-pointer"
-                  onClick={() => handleProgramClick(program)} // Pass the clicked program data to ProgramDetails
+                  onClick={() => handleProgramClick(program)} 
                 >
                   <div className="flex justify-between items-center w-full mb-4 md:mb-0">
                     <h1 className="text-sm md:text-base">
@@ -95,7 +95,7 @@ function Program() {
                     <div
                       className="flex justify-end md:justify-center cursor-pointer relative"
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent the dropdown from closing the program click
+                        e.stopPropagation(); 
                         toggleDropdown(index);
                       }}
                     >

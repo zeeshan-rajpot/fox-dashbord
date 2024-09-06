@@ -7,6 +7,7 @@ const AddProgramModal = ({ isOpen, onClose, updateProgram }) => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm();
 
@@ -14,6 +15,7 @@ const AddProgramModal = ({ isOpen, onClose, updateProgram }) => {
     try {
       const response = await addProgram(data);
       console.log(response);
+      reset();
       onClose();
       updateProgram();
     } catch (error) {
