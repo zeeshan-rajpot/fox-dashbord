@@ -5,7 +5,7 @@ export const signup = async (userData) => {
     const response = await api.post("/user/register", userData);
     return response.data;
   } catch (error) {
-    throw error.message;
+    throw error;
   }
 };
 

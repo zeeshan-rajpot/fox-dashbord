@@ -1,20 +1,41 @@
-
-import React from 'react';
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip } from 'chart.js';
-
+import { useState, useEffect } from "react";
+import { topWinUsers } from "../../Api/Users";
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+} from "chart.js";
 // Register the necessary components
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip);
 
 const TopWinsUsersChart = () => {
+  const [topUsersData, setTopUsersData] = useState([]);
+
+  const getTopUsersData = async () => {
+    try {
+      const response = await topWinUsers();
+      // console.log(response);
+      setTopUsersData(response);
+    } catch (error) {
+      // console.error("Error", error);
+      toast.error("Failed to fetch users. Please try again later.");
+    }
+  };
+
+  useEffect(() => {
+    getTopUsersData();
+  }, []);
+
   const data = {
-    labels: ['john', 'swan', 'malik', 'neo', 'emma', 'liam', 'sophia', 'oliver', 'mia'],
+    labels: topUsersData.map((user) => user.username),
     datasets: [
       {
-        label: 'Workouts',
-        data: [200, 150, 80, 120, 60, 100, 50, 75, 30, 110, 90],
-        backgroundColor: '#FF280066',
-      
+        label: "Workouts",
+        data: topUsersData.map((user) => user.totalWorkouts),
+        backgroundColor: "#FF280066",
       },
     ],
   };
@@ -35,13 +56,13 @@ const TopWinsUsersChart = () => {
       },
       y: {
         grid: {
-          color: '#E5E7EB',
+          color: "#E5E7EB",
         },
         ticks: {
-          stepSize: 50,
+          stepSize: 2,
         },
         beginAtZero: true,
-        max: 300,
+        max: 10,
       },
     },
     plugins: {
@@ -54,9 +75,8 @@ const TopWinsUsersChart = () => {
   return (
     <div className="relative w-full max-w-4xl p-6 bg-white rounded-lg shadow-lg">
       <h2 className="text-xl font-semibold mb-4">Top Wins Users</h2>
-      <div className="relative" style={{ height: '300px' }}>
+      <div className="relative" style={{ height: "300px" }}>
         <Bar data={data} options={options} />
-        
       </div>
     </div>
   );

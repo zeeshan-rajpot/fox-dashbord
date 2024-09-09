@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { login } from "../../Api/Auth";
 import ForgetPassword from "./ForgetPassword";
+import toast from "react-hot-toast";
 
 function Login() {
   const {
@@ -21,18 +22,25 @@ function Login() {
     setShowModal(true);
   };
 
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const onSubmit = async (data) => {
+    setLoading(true);
     try {
       const response = await login(data);
-      console.log(response.message);  
+      console.log(response.message);
       navigate("/dashboard");
-  
-      sessionStorage.setItem("token", response.token);  
+
+      sessionStorage.setItem("token", response.token);
     } catch (error) {
-      console.log(error.message);
+      // console.log(error.response.data.message);
+      setErrorMessage(error.response.data.message);
+      setLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
-  
 
   return (
     <>
@@ -44,14 +52,14 @@ function Login() {
           <div className="flex justify-center items-center">
             <img src="/image 12.png" alt="" className="h-12" />
           </div>
-          <div className="gap-6 md:gap-8 lg:gap-10 pt-12 md:pt-16 lg:pt-20 flex flex-col justify-center items-center w-full">
+          <div className="gap-6 pt-12 md:pt-16 lg:pt-20 flex flex-col justify-center items-center w-full">
             <h1 className="font-semibold text-2xl md:text-3xl lg:text-4xl text-[#272828]">
               Login
             </h1>
             <div className="flex flex-col gap-5 px-2">
               <div className="bg-[#FAFAFA] flex items-center p-2 md:p-3 rounded-full shadow-md h-[50px] md:h-[55px] lg:h-[59px] w-full md:w-[360px] lg:w-[460px]">
                 <img src="/Frame 33.png" alt="" className="h-8 w-8" />
-                <hr className="w-[1px] md:w-[2px] h-full bg-[#C2C3C3] border-0 mx-1 md:mx-2" />
+                <hr className="w-[1px] md:w-[2px] h-full  border-0 mx-1 md:mx-2" />
                 <input
                   {...register("email", { required: true })}
                   type="email"
@@ -69,7 +77,7 @@ function Login() {
                 <input
                   {...register("password", { required: true })}
                   type="password"
-                  className="flex-1 h-full outline-none bg-transparent text-[#C2C3C3] text-sm md:text-base"
+                  className="flex-1 h-full outline-none bg-transparent  text-sm md:text-base"
                   placeholder="Password"
                 />
                 <img
@@ -92,12 +100,23 @@ function Login() {
               </h1>
             </div>
 
+            {errorMessage && (
+              <span className="text-red-500 text-sm text-left">
+                {errorMessage}
+              </span>
+            )}
+
             <div className="p-3 md:p-5 w-full">
               <button
                 type="submit"
                 className="h-[45px] md:h-[50px] lg:h-[55px] w-full text-sm md:text-base lg:text-lg text-white bg-[#FF2800] shadow-md rounded-full md:w-[320px] lg:w-[400px] xl:w-[459px] hover:bg-red-500"
+                disabled={loading}
               >
-                Login
+                {loading ? (
+                  <div className="animate-spin rounded-full mx-auto h-6 w-6 border-t-2 border-r-2 border-white"></div>
+                ) : (
+                  "Login"
+                )}
               </button>
             </div>
           </div>
