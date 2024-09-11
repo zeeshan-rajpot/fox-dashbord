@@ -95,7 +95,7 @@ const ProgramDetails = () => {
         onClose={closeModal}
         workoutData={selectedWorkout}
         programId={program._id}
-        weekNumber={selectedWeekNumber} // Pass selectedWeekNumber to AddWorkoutModal
+        weekNumber={selectedWeekNumber} 
       />
     </>
   );

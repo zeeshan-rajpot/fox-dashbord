@@ -1,19 +1,17 @@
-// src/components/ChangePasswordModal.jsx
+import React, { useState } from "react";
 
-import React, { useState } from 'react';
+const ChangePasswordModal = ({ isOpen, onClose, handleChangePassword }) => {
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-const ChangePasswordModal = ({ isOpen, onClose }) => {
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const reset = () => {
+    setNewPassword("");
+    setConfirmPassword("");
+  };
 
-  const handleSave = () => {
-    if (newPassword !== confirmPassword) {
-      alert('Passwords do not match!');
-      return;
-    }
-    // Handle password save logic here
-    alert('Password changed successfully!');
-    onClose();
+  const onSave = () => {
+    handleChangePassword(newPassword, confirmPassword);
+    reset();
   };
 
   if (!isOpen) return null;
@@ -40,7 +38,9 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
             />
           </svg>
         </button>
-        <h2 className="text-center text-xl font-semibold mb-4">Change Password</h2>
+        <h2 className="text-center text-xl font-semibold mb-4">
+          Change Password
+        </h2>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">
             New Password
@@ -64,7 +64,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
           />
         </div>
         <button
-          onClick={handleSave}
+          onClick={onSave}
           className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-md transition-colors"
         >
           Save
