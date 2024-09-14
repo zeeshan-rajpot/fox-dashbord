@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../../components/SideBar";
 import AddProgramModal from "./AddProgramModal";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { getPrograms } from "../../Api/Programs";
 import ProgramSkeleton from "./ProgramSkeleton";
 
@@ -15,10 +15,11 @@ function Program() {
   const fetchPrograms = async () => {
     try {
       const response = await getPrograms();
+      // console.log(response);
       setProgramData(response);
     } catch (error) {
       console.error("Failed to fetch programs", error);
-    }finally{
+    } finally {
       setIsLoading(false);
     }
   };
@@ -57,10 +58,10 @@ function Program() {
             Programs
           </h2>
           <div className="w-full px-4 bg-white py-4 mt-5 md:mt-7">
-            <div className="flex flex-col md:flex-row justify-between p-3 w-full bg-[#FF2800] rounded-2xl">
+            <div className="flex flex-col md:flex-row justify-between items-center p-3 w-full bg-[#FF2800] rounded-2xl">
               <div className="flex justify-between items-center w-full md:w-[40%] text-white mb-4 md:mb-0">
                 <h1 className="text-sm md:text-base">Start Date</h1>
-                <h2 className="text-sm md:text-base">Program Title</h2>
+                <h2 className="text-sm md:text-base ">Program Title</h2>
               </div>
               <div
                 className="flex justify-center items-center px-3 gap-3 md:gap-5 bg-[#111111] text-white rounded-2xl cursor-pointer"
@@ -85,17 +86,17 @@ function Program() {
                 <div
                   key={program._id}
                   className="flex flex-col md:flex-row justify-between p-4 w-full bg-white rounded-2xl shadow mb-4 relative cursor-pointer"
-                  onClick={() => handleProgramClick(program)} 
+                  onClick={() => handleProgramClick(program)}
                 >
                   <div className="flex justify-between items-center w-full mb-4 md:mb-0">
                     <h1 className="text-sm md:text-base">
                       {new Date(program.startDate).toLocaleDateString()}
                     </h1>
-                    <h2 className="text-sm md:text-base">{program.title}</h2>
+                    <h2 className="text-sm md:text-base md:mr-80">{program.title}</h2>
                     <div
                       className="flex justify-end md:justify-center cursor-pointer relative"
                       onClick={(e) => {
-                        e.stopPropagation(); 
+                        e.stopPropagation();
                         toggleDropdown(index);
                       }}
                     >

@@ -59,6 +59,7 @@ const AddProgramModal = ({ isOpen, onClose, updateProgram }) => {
                 })}
                 type="date"
                 className="w-full p-2 border rounded-lg focus:outline-none focus:ring focus:ring-red-500"
+                min={new Date().toISOString().split("T")[0]}
               />
             </div>
             {errors.startDate && (

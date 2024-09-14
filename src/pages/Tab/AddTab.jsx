@@ -1,9 +1,11 @@
-import React from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { addTab } from "../../Api/Tab";
 import toast from "react-hot-toast";
 
 const AddTab = ({ isOpen, onClose, getTabs }) => {
+  const [loading, setLoading] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -21,14 +23,17 @@ const AddTab = ({ isOpen, onClose, getTabs }) => {
       toast.success("Tab added successfully");
     } catch (error) {
       // console.log(error);
-      toast.error(error.response.data.msg);
+      toast.error(error.response.data.message);
+      setLoading(false);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleClose = () =>{
+  const handleClose = () => {
     onClose();
     reset();
-  }
+  };
 
   if (!isOpen) return null;
 
@@ -58,15 +63,22 @@ const AddTab = ({ isOpen, onClose, getTabs }) => {
 
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">Station</label>
-            <input
-              type="number"
+            <select
               className="w-full p-2 border rounded-lg focus:outline-none focus:ring focus:ring-red-500"
               {...register("stationNumber", {
                 required: "Station number is required",
               })}
-            />
-            {errors.station && (
-              <p className="text-red-500 text-sm">{errors.station.message}</p>
+            >
+              <option value="">Select stations</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+            {errors.stationNumber && (
+              <p className="text-red-500 text-sm">
+                {errors.stationNumber.message}
+              </p>
             )}
           </div>
 
@@ -104,8 +116,13 @@ const AddTab = ({ isOpen, onClose, getTabs }) => {
             <button
               type="submit"
               className="bg-red-500 text-white py-2 px-8 rounded-full hover:bg-red-600 transition duration-200"
+              disabled={loading}
             >
-              Add Tab
+              {loading ? (
+                <div className="animate-spin rounded-full mx-auto h-6 w-6 border-t-2 border-r-2 border-white"></div>
+              ) : (
+                "  Add Tab"
+              )}
             </button>
           </div>
         </form>
