@@ -30,6 +30,7 @@ const ProgramDetails = () => {
   const { state } = useLocation();
   const { program } = state;
 
+
   const openModal = (workout = null, weekNumber = null, date = null) => {
     setIsModalOpen(true);
     setSelectedWorkout(workout || { title: "", stations: [{ exercises: [{ sets: [] }] }] });

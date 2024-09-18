@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { addWorkoutModal } from "../../Api/Programs";
 import toast from "react-hot-toast";
-
+import { useNavigate } from "react-router-dom";
 const AddWorkoutModal = ({
   isOpen,
   onClose,
@@ -10,6 +10,7 @@ const AddWorkoutModal = ({
   weekNumber,
   workoutDate,
 }) => {
+  const navigate = useNavigate();
   const [programTitle, setProgramTitle] = useState("");
   const [stations, setStations] = useState([
     {
@@ -140,6 +141,7 @@ const AddWorkoutModal = ({
       const response = await addWorkoutModal(newWorkout);
       console.log(response);
       toast.success("Workout added successfully");
+      navigate("/program");
       onClose();
     } catch (error) {
       console.error("Error adding workout:", error);

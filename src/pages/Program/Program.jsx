@@ -2,31 +2,17 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../../components/SideBar";
 import AddProgramModal from "./AddProgramModal";
 import { useNavigate } from "react-router-dom";
-import { getPrograms } from "../../Api/Programs";
 import ProgramSkeleton from "./ProgramSkeleton";
+import { usePrograms } from "./ProgramsContext";
+import { useLocation } from "react-router-dom"; 
 
 function Program() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [programData, setProgramData] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const fetchPrograms = async () => {
-    try {
-      const response = await getPrograms();
-      // console.log(response);
-      setProgramData(response);
-    } catch (error) {
-      console.error("Failed to fetch programs", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPrograms();
-  }, []);
+  const { programData, isLoading, fetchPrograms } = usePrograms();
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -48,6 +34,10 @@ function Program() {
   const handleProgramClick = (program) => {
     navigate("/program/programdetails", { state: { program } });
   };
+
+  useEffect(() => {
+    fetchPrograms();
+  }, [location]);
 
   return (
     <>
@@ -92,7 +82,9 @@ function Program() {
                     <h1 className="text-sm md:text-base">
                       {new Date(program.startDate).toLocaleDateString()}
                     </h1>
-                    <h2 className="text-sm md:text-base md:mr-80">{program.title}</h2>
+                    <h2 className="text-sm md:text-base md:mr-80">
+                      {program.title}
+                    </h2>
                     <div
                       className="flex justify-end md:justify-center cursor-pointer relative"
                       onClick={(e) => {
