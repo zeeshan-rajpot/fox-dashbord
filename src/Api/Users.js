@@ -20,10 +20,10 @@ export const getUsersWeekly = async () => {
   }
 };
 
-export const topWinUsers = async () => {
+export const topWinUsers = async (timePeriod) => {
   try {
     const response = await api.get(
-      "/dashboard/user-workout-goal?page=1&limit=7"
+      `/dashboard/top-win-users?timePeriod=${timePeriod}&limit=5`
     );
     return response.data;
   } catch (error) {

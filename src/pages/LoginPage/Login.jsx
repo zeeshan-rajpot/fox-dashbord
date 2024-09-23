@@ -23,8 +23,8 @@ function Login() {
 
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
   const onSubmit = async (data) => {
+    console.log(data)
     setLoading(true);
     try {
       const response = await login(data);

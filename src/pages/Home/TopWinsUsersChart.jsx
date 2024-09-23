@@ -14,21 +14,27 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip);
 const TopWinsUsersChart = () => {
   const [topUsersData, setTopUsersData] = useState([]);
 
-  const getTopUsersData = async () => {
+  const [timePeriod, setTimePeriod] = useState("week");
+
+  // Fetch top users data based on the selected time period
+  const getTopUsersData = async (period) => {
     try {
-      const response = await topWinUsers();
-      // console.log(response);
+      const response = await topWinUsers(period);
       setTopUsersData(response);
     } catch (error) {
-      // console.error("Error", error);
       toast.error("Failed to fetch users. Please try again later.");
     }
   };
 
+  // Effect to fetch data when time period changes
   useEffect(() => {
-    getTopUsersData();
-  }, []);
+    getTopUsersData(timePeriod);
+  }, [timePeriod]);
 
+
+
+
+  console.log(topUsersData)
   const data = {
     labels: topUsersData.map((user) => user.username),
     datasets: [
@@ -59,10 +65,11 @@ const TopWinsUsersChart = () => {
           color: "#E5E7EB",
         },
         ticks: {
+          display: false,
           stepSize: 2,
         },
         beginAtZero: true,
-        max: 10,
+        // max: ,
       },
     },
     plugins: {
@@ -72,13 +79,40 @@ const TopWinsUsersChart = () => {
     },
   };
 
+
+  const handleTimePeriodChange = (e) => {
+    setTimePeriod(e.target.value);
+  };
+
+
+
+
   return (
     <div className="relative w-full max-w-4xl p-6 bg-white rounded-lg shadow-lg">
-      <h2 className="text-xl font-semibold mb-4">Top Wins Users</h2>
-      <div className="relative" style={{ height: "300px" }}>
-        <Bar data={data} options={options} />
-      </div>
+      <div className="flex items-start justify-between">
+
+    <h2 className="text-xl font-semibold mb-4">Leaderboard</h2>
+
+    <div className="mb-4">
+      <select
+        value={timePeriod}
+        onChange={handleTimePeriodChange}
+        className="p-2 border border-gray-300 rounded-lg"
+      >
+        <option value="week">Week</option>
+        <option value="month">Month</option>
+        <option value="alltime">All-time</option>
+      </select>
     </div>
+      </div>
+
+    {/* Dropdown for selecting time period */}
+
+
+    <div className="relative" style={{ height: "300px" }}>
+      <Bar data={data} options={options} />
+    </div>
+  </div>
   );
 };
 
