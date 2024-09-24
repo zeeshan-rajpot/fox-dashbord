@@ -8,6 +8,7 @@ import Users from "./pages/Users/Users.jsx";
 import Login from "./pages/LoginPage/Login.jsx";
 import ProgramDetails from "./pages/Program/ProgramDetails.jsx";
 import Tab from "./pages/Tab/Tab.jsx";
+import Exercise from "./pages/Exercise/Exercise.jsx";
 function App() {
   return (
     <BrowserRouter>
@@ -16,6 +17,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/users" element={<Users />} />
         <Route path="/program" element={<Program />} />
+        <Route path="/Exercise" element={<Exercise />} />
         <Route path="/program/programdetails" element={<ProgramDetails/>} />
         <Route path="/tab" element={<Tab />} />
 

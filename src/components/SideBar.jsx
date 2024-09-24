@@ -20,6 +20,12 @@ const menuItems = [
     route: "/Program",
     activeLogo: "/_30-Report (1).svg",
     inactiveLogo: " /_30-Report.svg",
+  },  
+  {
+    name: "Exercise",
+    route: "/Exercise",
+    activeLogo: "/Frameexercise.png",
+    inactiveLogo: " /_30-Report.svg",
   },
   {
     name: "Tab",
