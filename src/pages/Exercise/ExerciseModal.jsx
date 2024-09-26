@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
+import { useExercises } from './ExercisesContext';
 
-const ExerciseModal = ({closeModal}) => {
-    console.log(closeModal)
+const ExerciseModal = ({ closeModal  ,exerciseData}) => {
+    const { postExercise } = useExercises();
     const [exerciseName, setExerciseName] = useState('');
     const [levels, setLevels] = useState([]);
 
     const handleInputChange = (index, event) => {
         const newLevels = [...levels];
-        if (event.target.name === 'unit') {
-            // If the change is to the unit type, update all levels to this unit
-            newLevels.forEach(level => level.unit = event.target.value);
+        if (event.target.name === 'measurementType') {
+            newLevels.forEach(level => level.measurementType = event.target.value);
         } else {
-            // Otherwise, just update the value of the specific level
             newLevels[index][event.target.name] = event.target.value;
         }
         setLevels(newLevels);
@@ -20,9 +19,9 @@ const ExerciseModal = ({closeModal}) => {
     const handleAddLevel = () => {
         if (levels.length < 3) {
             const levelTypes = [
-                { type: 'Beginner', unit: 'Reps' },
-                { type: 'Intermediate', unit: 'Time' },
-                { type: 'Advance', unit: 'Distance' }
+                { type: 'Beginner', measurementType: 'Reps' },
+                { type: 'Intermediate', measurementType: 'Reps' },
+                { type: 'Advance', measurementType: 'Reps' }
             ];
             const newLevel = {
                 id: levels.length + 1,
@@ -33,16 +32,37 @@ const ExerciseModal = ({closeModal}) => {
         }
     };
 
-    const handleSubmit = () => {
-        console.log({ exerciseName, levels });
-        alert('Exercise added successfully!');
+    const showMessage = (message, isError = false) => {
+        alert(message); // You can customize this to show a toast or other UI message
+    };
+
+    const handleSubmit = async () => {
+        const formattedData = {
+            exerciseName: exerciseName,
+            sets: levels.map(level => ({
+                level: level.type,
+                value: level.value,
+                measurementType: level.measurementType
+            }))
+        };
+
+        console.log(formattedData);
+        try {
+            await postExercise(formattedData);
+            showMessage('Exercise added successfully!');
+            exerciseData()
+            closeModal(); // Close the modal after adding exercise
+        } catch (error) {
+            console.error('Error adding exercise:', error);
+            showMessage(error.response.data.error, true);
+        }
     };
 
     return (
         <div className="fixed inset-0 bg-gray-300 bg-opacity-75 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
                 <div className="flex justify-end" onClick={closeModal}>
-                    <button className="text-red-500 text-3xl font-semibold" >x</button>
+                    <button className="text-red-500 text-3xl font-semibold">x</button>
                 </div>
                 <div className='mt-5'>
                     <div className='flex items-center justify-between font-semibold'>
@@ -62,19 +82,19 @@ const ExerciseModal = ({closeModal}) => {
                     {levels.map((level, index) => (
                         <div key={level.id} className="mt-4 flex items-center justify-between">
                             <label className="text-md font-medium text-gray-700">{level.type}</label>
-                            <div className=''>
+                            <div>
                                 <input
-                                    type="text"
+                                    type="number"
                                     className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none w-20"
-                                    placeholder={`${level.unit}`}
+                                    placeholder={`${level.measurementType}`}
                                     name="value"
                                     value={level.value}
                                     onChange={(e) => handleInputChange(index, e)}
                                 />
                                 <select
                                     className="ml-2 py-2 border border-gray-300 rounded-md text-gray-600"
-                                    name="unit"
-                                    value={level.unit}
+                                    name="measurementType"
+                                    value={level.measurementType}
                                     onChange={(e) => handleInputChange(index, e)}
                                 >
                                     <option value="Reps">Reps</option>
