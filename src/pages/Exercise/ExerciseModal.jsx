@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useExercises } from './ExercisesContext';
 
-const ExerciseModal = ({ closeModal  ,exerciseData}) => {
+const ExerciseModal = ({ closeModal  , exerciseData}) => {
     const { postExercise } = useExercises();
     const [exerciseName, setExerciseName] = useState('');
     const [levels, setLevels] = useState([]);

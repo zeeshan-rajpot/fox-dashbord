@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import Sidebar from "../../components/SideBar";
-import AddWorkoutModal from "./AddWorkoutModal";
+import NewWorkoutModal from "./NewWorkoutModal";
 
 // Create weeks with actual dates starting from program's start date
 const createDefaultWeeks = (weeks, startDate) => {
@@ -26,26 +26,50 @@ const ProgramDetails = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [selectedWeekNumber, setSelectedWeekNumber] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null); // Track selected date
+  const [selectedDate, setSelectedDate] = useState(null);
   const { state } = useLocation();
   const { program } = state;
+  const [weeks, setWeeks] = useState(createDefaultWeeks(program.weeks, program.startDate));
+
+  const updateWorkoutData = (weekNumber, date, newWorkout) => {
+    setWeeks((prevWeeks) => {
+        return prevWeeks.map((week) => {
+            if (week.weekNumber === weekNumber) {
+                return {
+                    ...week,
+                    days: week.days.map((day) => {
+                        if (day.date.toDateString() === date.toDateString()) {
+                            return { ...day, workout: newWorkout }; // Update the workout for this day
+                        }
+                        return day;
+                    }),
+                };
+            }
+            return week;
+        });
+    });
+};
+
+
 
 
   const openModal = (workout = null, weekNumber = null, date = null) => {
-    setIsModalOpen(true);
-    setSelectedWorkout(workout || { title: "", stations: [{ exercises: [{ sets: [] }] }] });
+    setIsModalOpen(true); // Open the modal
+    setSelectedWorkout(workout);
     setSelectedWeekNumber(weekNumber);
-    setSelectedDate(date); // Set the selected date
+    setSelectedDate(date);
   };
 
-  const closeModal = () => setIsModalOpen(false);
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   if (!program) {
     return <p>No program data available.</p>;
   }
 
   // Pass the program start date to createDefaultWeeks
-  const weeks = createDefaultWeeks(program.weeks, program.startDate);
+  // const weeks = createDefaultWeeks(program.weeks, program.startDate);
 
   return (
     <>
@@ -81,8 +105,8 @@ const ProgramDetails = () => {
                         })}
                       </p>
                       <div
-                        className={`flex flex-col items-center justify-center border rounded-lg h-32 bg-white shadow-sm cursor-pointer ${day.workout ? 'cursor-default' : 'cursor-pointer'}`}
-                        onClick={() => !day.workout && openModal(day.workout, week.weekNumber, day.date)}
+                        className={`flex flex-col items-center justify-center border rounded-lg h-32 bg-white shadow-sm cursor-pointer`}
+                        onClick={() => openModal(day.workout, week.weekNumber, day.date)}
                       >
                         {day.workout ? (
                           <img
@@ -106,15 +130,18 @@ const ProgramDetails = () => {
         </div>
       </section>
 
-      <AddWorkoutModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        workoutData={selectedWorkout}
-        programId={program._id}
-        weekNumber={selectedWeekNumber}
-        workoutDate={selectedDate} 
-        
-      />
+      {/* New Workout Modal */}
+      {isModalOpen && (
+        <NewWorkoutModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          workoutData={selectedWorkout}
+          programId={program._id}
+          weekNumber={selectedWeekNumber}
+          workoutDate={selectedDate}
+          onWorkoutAdded={updateWorkoutData}
+        />
+      )}
     </>
   );
 };
