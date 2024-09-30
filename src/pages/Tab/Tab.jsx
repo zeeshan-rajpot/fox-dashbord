@@ -36,7 +36,7 @@ function Tab() {
     try {
       await deleteTabs(id);
       toast.success("Tab deleted successfully");
-      fetchTabs(); // Refetch tabs after deletion
+      fetchTabs(); 
     } catch (error) {
       console.error("Error Deleting tab", error);
       toast.error("Error Deleting tab");

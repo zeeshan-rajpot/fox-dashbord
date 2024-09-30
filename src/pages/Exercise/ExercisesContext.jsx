@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, useCallback } from "react";
-import { getExercises, createExercise } from "../../Api/Programs";
+import { getExercises, createExercise , updateExercise} from "../../Api/Programs";
 
 const ExercisesContext = createContext();
 
@@ -28,12 +28,25 @@ export const ExercisesProvider = ({ children }) => {
         }
     };
 
+
+    const editExercise = async (id, updatedExercise) => {
+        try {
+            const response = await updateExercise(id, updatedExercise);
+            setExerciseData((prev) =>
+                prev.map((exercise) => (exercise._id === id ? response : exercise))
+            );
+        } catch (error) {
+            console.error("Failed to update exercise", error);
+            throw error;
+        }
+    };
+
     useEffect(() => {
         fetchExercises();
     }, []);
 
     return (
-        <ExercisesContext.Provider value={{ exerciseData, isLoading, fetchExercises, postExercise }}>
+        <ExercisesContext.Provider value={{ exerciseData, isLoading, fetchExercises, postExercise ,editExercise }}>
             {children}
         </ExercisesContext.Provider>
     );

@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import SideBar from '../../components/SideBar';
+import {  deleteExersice } from "../../Api/Programs";
+import toast from "react-hot-toast";
+
+
 import ExerciseModal from './ExerciseModal';
 import ProgramSkeleton from "../Program/ProgramSkeleton"; // Assuming you have a skeleton component for loading
 import { useExercises } from "./ExercisesContext"; // Import from the ExercisesContext
@@ -7,6 +11,9 @@ import { useExercises } from "./ExercisesContext"; // Import from the ExercisesC
 const Exercise = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(null); // Handle dropdown for each exercise
+  // const [modalOpen, setModalOpen] = useState(false);
+const [editModalOpen, setEditModalOpen] = useState(false); // For edit modal
+const [selectedExercise, setSelectedExercise] = useState(null);
 
   const openModal = () => {
     setModalOpen(true);
@@ -27,9 +34,7 @@ const Exercise = () => {
   }, [fetchExercises]);
   
 
-  const handleEdit = (index) => {
-    // Handle edit logic here
-  };
+
 
   const handleDelete = (index) => {
     // Handle delete logic here
@@ -38,6 +43,23 @@ const Exercise = () => {
   const handleExerciseClick = (exercise) => {
     // Handle exercise card click logic here
   };
+
+  const deleteExe = async (id) => {
+    try {
+      await deleteExersice(id);
+      toast.success("Exersice deleted successfully");
+      fetchExercises();
+    } catch (error) {
+      console.error("Error Deleting Exersice", error);
+      toast.error("Error Deleting Exersice");
+    }
+  };
+
+  const handleEdit = (exercise) => {
+    setSelectedExercise(exercise); // Set the selected exercise data
+    setEditModalOpen(true); // Open the edit modal
+  };
+
 
   return (
     <div>
@@ -101,13 +123,13 @@ const Exercise = () => {
                             <div className="absolute right-0 mt-6 w-40 bg-white rounded-lg shadow-lg z-50">
                               <button
                                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                onClick={() => handleEdit(index)}
+                                onClick={() => handleEdit(exercise)} 
                               >
                                 Edit
                               </button>
                               <button
                                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                onClick={() => handleDelete(index)}
+                                onClick={() => deleteExe(exercise._id)}
                               >
                                 Delete
                               </button>
@@ -127,6 +149,7 @@ const Exercise = () => {
         </div>
       </section>
       {modalOpen && <ExerciseModal closeModal={closeModal} exerciseData={fetchExercises} />}
+      {editModalOpen && <ExerciseModal closeModal={closeModal} selectedExercise={selectedExercise} exerciseData={fetchExercises}  />} 
     </div>
   );
 };

@@ -40,3 +40,21 @@ export const addWorkoutModal = async workoutData => {
     throw error;
   }
 };
+
+export const deleteExersice = async (id) => {
+  try {
+    const response = await api.delete(`/dashboard/delete-exercise/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateExercise = async (id, updatedExercise) => {
+  try {
+    const response = await api.patch(`/dashboard/update-exercise/${id}`, updatedExercise);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
