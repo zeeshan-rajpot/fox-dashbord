@@ -51,11 +51,12 @@ const ExerciseModal = ({ closeModal, exerciseData, selectedExercise }) => {
   const handleSubmit = async () => {
     const formattedData = {
       exerciseName: exerciseName,
-      sets: levels.map(level => ({
-        level: level.type,
-        value: level.value,
-        measurementType: level.measurementType
-      }))
+    //   sets: levels.map(level => ({
+    //     level: level.type,
+    //     value: level.value,
+    //     measurementType: level.measurementType
+    //   })
+    // )
     };
 
     try {
@@ -83,11 +84,11 @@ const ExerciseModal = ({ closeModal, exerciseData, selectedExercise }) => {
         <div className="mt-5">
           <div className="flex items-center justify-between font-semibold">
             <label className="block text-lg font-medium text-gray-700">Exercise Name</label>
-            {levels.length < 3 && (
+            {/* {levels.length < 3 && (
               <p onClick={handleAddLevel} className="cursor-pointer text-[#FF2800]">
                 + Add Level
               </p>
-            )}
+            )} */}
           </div>
           <input
             type="text"

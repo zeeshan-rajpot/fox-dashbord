@@ -31,45 +31,33 @@ const ProgramDetails = () => {
   const { program } = state;
   const [weeks, setWeeks] = useState(createDefaultWeeks(program.weeks, program.startDate));
 
-  const updateWorkoutData = (weekNumber, date, newWorkout) => {
-    setWeeks((prevWeeks) => {
-        return prevWeeks.map((week) => {
-            if (week.weekNumber === weekNumber) {
-                return {
-                    ...week,
-                    days: week.days.map((day) => {
-                        if (day.date.toDateString() === date.toDateString()) {
-                            return { ...day, workout: newWorkout }; // Update the workout for this day
-                        }
-                        return day;
-                    }),
-                };
-            }
-            return week;
-        });
-    });
-};
-
-
-
-
   const openModal = (workout = null, weekNumber = null, date = null) => {
     setIsModalOpen(true); // Open the modal
-    setSelectedWorkout(workout);
-    setSelectedWeekNumber(weekNumber);
-    setSelectedDate(date);
+    setSelectedWorkout(workout); // Set workout data (or null if adding a new one)
+    setSelectedWeekNumber(weekNumber); // Set the selected week number
+    setSelectedDate(date); // Set the selected date
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
   };
 
-  if (!program) {
-    return <p>No program data available.</p>;
-  }
-
-  // Pass the program start date to createDefaultWeeks
-  // const weeks = createDefaultWeeks(program.weeks, program.startDate);
+  const updateWorkoutData = (weekNumber, date, newWorkout) => {
+    setWeeks((prevWeeks) =>
+      prevWeeks.map((week) =>
+        week.weekNumber === weekNumber
+          ? {
+              ...week,
+              days: week.days.map((day) =>
+                day.date.toDateString() === date.toDateString()
+                  ? { ...day, workout: newWorkout }
+                  : day
+              ),
+            }
+          : week
+      )
+    );
+  };
 
   return (
     <>
@@ -92,16 +80,14 @@ const ProgramDetails = () => {
           <div className="w-full px-4 bg-white py-4 mt-5 md:mt-7 shadow-xl">
             {weeks.map((week, weekIndex) => (
               <div key={weekIndex} className="mb-10">
-                <h2 className="text-xl font-bold mb-4">
-                  Week {week.weekNumber}
-                </h2>
+                <h2 className="text-xl font-bold mb-4">Week {week.weekNumber}</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-4">
                   {week.days.map((day, dayIndex) => (
                     <div key={dayIndex} className="flex flex-col">
                       <p className="text-xs text-red-500 mt-2 text-center mb-2">
-                        {new Date(day.date).toLocaleDateString('en-US', {
-                          month: 'long',
-                          day: 'numeric'
+                        {new Date(day.date).toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
                         })}
                       </p>
                       <div
@@ -130,12 +116,12 @@ const ProgramDetails = () => {
         </div>
       </section>
 
-      {/* New Workout Modal */}
+      {/* Modal for Adding/Editing Workout */}
       {isModalOpen && (
         <NewWorkoutModal
           isOpen={isModalOpen}
           onClose={closeModal}
-          workoutData={selectedWorkout}
+          workoutData={selectedWorkout} // Pass workout data (or null)
           programId={program._id}
           weekNumber={selectedWeekNumber}
           workoutDate={selectedDate}

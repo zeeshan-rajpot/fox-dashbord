@@ -10,7 +10,7 @@ export const ExercisesProvider = ({ children }) => {
     const fetchExercises = useCallback(async () => {
         try {
             const response = await getExercises();
-            setExerciseData(response.exercises);
+            setExerciseData(response.exercises.reverse());
         } catch (error) {
             console.error("Failed to fetch exercises", error);
         } finally {

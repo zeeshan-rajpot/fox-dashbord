@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios'; // Import Axios
+import { useNavigate } from 'react-router-dom';
+
 import { usePrograms } from '../Program/ProgramsContext';
 const NewWorkoutModal = ({
     isOpen,
@@ -10,7 +12,11 @@ const NewWorkoutModal = ({
     workoutDate,
     onWorkoutAdded
 }) => {
+
+
+    
     const { fetchPrograms } = usePrograms();
+    const navigate = useNavigate();
 
     const [imagePreview, setImagePreview] = useState(null);
     const [programTitle, setProgramTitle] = useState('');
@@ -84,9 +90,9 @@ const NewWorkoutModal = ({
         const exercise = newStations[stationIndex].exercises[exerciseIndex];
         if (exercise.levels.length < 3) {
             const levelTypes = [
-                { type: 'Beginner', measurementType: 'Reps' },
-                { type: 'Intermediate', measurementType: 'Reps' },
-                { type: 'Advanced', measurementType: 'Reps' }
+                { type: 'Level 1', measurementType: 'Reps' },
+                { type: 'Level 2', measurementType: 'Reps' },
+                { type: 'Level 3', measurementType: 'Reps' }
             ];
             const newLevel = {
                 id: exercise.levels.length + 1,
@@ -138,6 +144,7 @@ const NewWorkoutModal = ({
             await fetchPrograms();
             onWorkoutAdded(weekNumber, new Date(workoutDate), response.data);
             onClose(); // Close the modal on success
+            navigate('/program');
         } catch (error) {
             console.error('Error adding workout:', error);
             alert(error.response.data.message)
@@ -204,7 +211,7 @@ const NewWorkoutModal = ({
                     {/* Render stations */}
                     {stations.map((station, stationIndex) => (
                         <div key={station.id} className="mt-4">
-                            <h3 className="font-bold text-lg">Station {stationIndex + 1}</h3>
+                            {/* <h3 className="font-bold text-lg">Station {stationIndex + 1}</h3> */}
                             {/* Exercises section for this station */}
                             {station.exercises.map((exercise, exerciseIndex) => (
                                 <div key={exercise.id} className="mt-5">
