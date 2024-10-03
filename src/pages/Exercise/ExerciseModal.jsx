@@ -9,12 +9,12 @@ const ExerciseModal = ({ closeModal, exerciseData, selectedExercise }) => {
   useEffect(() => {
     if (selectedExercise) {
       setExerciseName(selectedExercise.exerciseName);
-      setLevels(selectedExercise.sets.map((set, index) => ({
-        id: index + 1,
-        type: set.level,
-        value: set.value,
-        measurementType: set.measurementType
-      })));
+    //   setLevels(selectedExercise.sets.map((set, index) => ({
+    //     id: index + 1,
+    //     type: set.level,
+    //     value: set.value,
+    //     measurementType: set.measurementType
+    //   })));
     }
   }, [selectedExercise]);
 
@@ -96,7 +96,7 @@ const ExerciseModal = ({ closeModal, exerciseData, selectedExercise }) => {
             value={exerciseName}
             onChange={(e) => setExerciseName(e.target.value)}
           />
-          {levels.map((level, index) => (
+          {/* {levels.map((level, index) => (
             <div key={`${level.type}-${selectedExercise ? selectedExercise._id : 'new'}-${index}`} className="mt-4 flex items-center justify-between">
               <label className="text-md font-medium text-gray-700">{level.type}</label>
               <div>
@@ -120,7 +120,7 @@ const ExerciseModal = ({ closeModal, exerciseData, selectedExercise }) => {
                 </select>
               </div>
             </div>
-          ))}
+          ))} */}
           <div className="flex justify-center mt-6">
             <button
               className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-8 rounded-full"

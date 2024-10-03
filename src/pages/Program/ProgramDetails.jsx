@@ -29,6 +29,7 @@ const ProgramDetails = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const { state } = useLocation();
   const { program } = state;
+  console.log(program)
   const [weeks, setWeeks] = useState(createDefaultWeeks(program.weeks, program.startDate));
 
   const openModal = (workout = null, weekNumber = null, date = null) => {

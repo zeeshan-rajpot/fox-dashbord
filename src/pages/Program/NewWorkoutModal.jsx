@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios'; // Import Axios
 import { useNavigate } from 'react-router-dom';
+import {  useExercises } from "../Exercise/ExercisesContext";
+
 
 import { usePrograms } from '../Program/ProgramsContext';
 const NewWorkoutModal = ({
@@ -14,36 +16,88 @@ const NewWorkoutModal = ({
 }) => {
 
 
+ 
+ 
+
+
     
     const { fetchPrograms } = usePrograms();
     const navigate = useNavigate();
 
-    const [imagePreview, setImagePreview] = useState(null);
-    const [programTitle, setProgramTitle] = useState('');
-    const [stations, setStations] = useState([
-        {
-            id: 1,
-            exercises: [{
+    const [imagePreview, setImagePreview] = useState(workoutData?.image || null);
+    const [programTitle, setProgramTitle] = useState(workoutData?.name || '');
+
+    const token = sessionStorage.getItem("token");
+
+
+    const [duration, setDuration] = useState(workoutData?.duration || 0);
+
+    // Handle the change in the input field
+    const handleDurationChange = (e) => {
+        setDuration(Number(e.target.value)); // Convert input to number
+    };
+
+
+    const [stations, setStations] = useState(
+        workoutData?.stations.map((station, index) => ({
+            id: index + 1,
+            exercises: station.exercises.map((exercise, exerciseIndex) => ({
+                id: exerciseIndex + 1,
+                exerciseName: exercise.exerciseName,
+                levels: exercise.sets.map((level) => ({
+                    id: level.id,
+                    type: level.level,
+                    measurementType: level.measurementType,
+                    value: level.value
+                }))
+            }))
+        })) || [
+            {
                 id: 1,
-                exerciseName: '',
-                levels: [] // Start with no levels
-            }]
-        } // Initially one station with no exercises
-    ]);
+                exercises: [{ id: 1, exerciseName: '', levels: [] }]
+            }
+        ]
+    );
     const [exerciseTemplate] = useState({
         exerciseName: '',
         levels: [] // Start with no levels
     });
 
     // Handle image upload
-    const handleImageUpload = (e) => {
+    const handleImageUpload = async (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setImagePreview(reader.result);
+                setImagePreview(reader.result);  // Preview the image
             };
             reader.readAsDataURL(file);
+    
+            // Prepare FormData to send to the API
+            const formData = new FormData();
+            formData.append('image', file);  // Append the file
+    
+            try {
+                const response = await fetch('https://fox-training-f2fph3abhfgbb4hv.eastus-01.azurewebsites.net/programs/addWorkoutImage', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,  // Add the token here
+                    },
+                    body: formData,
+                });
+    
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Image uploaded successfully', data);
+                    setImagePreview(data.imageUrl);
+                    // Handle success response
+                } else {
+                    console.error('Error uploading image');
+                    // Handle error response
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
     };
 
@@ -76,11 +130,17 @@ const NewWorkoutModal = ({
     const handleInputChange = (stationIndex, exerciseIndex, levelIndex, event) => {
         const newStations = [...stations];
         const exercise = newStations[stationIndex].exercises[exerciseIndex];
+
         if (event.target.name === 'measurementType') {
-            exercise.levels[levelIndex].measurementType = event.target.value;
+            // Update measurementType for all levels of the exercise
+            exercise.levels.forEach(level => {
+                level.measurementType = event.target.value;
+            });
         } else {
+            // Update only the specific field (e.g., value) for the specific level
             exercise.levels[levelIndex][event.target.name] = event.target.value;
         }
+
         setStations(newStations);
     };
 
@@ -107,10 +167,10 @@ const NewWorkoutModal = ({
     // Handle form submission
     const handleSubmit = async () => {
         const workout = {
-            date: workoutDate, // Use the provided workout date
-            duration: 60, // Assuming you will set this appropriately, you might want to get this from a state or input
-            name: programTitle || "Workout", // Use the program title
-            image: imagePreview || "https://w7.pngwing.com/pngs/79/518/png-transparent-js-react-js-logo-react-react-native-logos-icon.png", // Use the uploaded image preview
+            date: workoutDate,
+            duration: duration, // Set this appropriately
+            name: programTitle || "Workout",
+            image: imagePreview || "https://example.com/default-image.png",
             numberOfStations: stations.length,
             stations: stations.map((station, index) => ({
                 stationNumber: index + 1,
@@ -133,23 +193,62 @@ const NewWorkoutModal = ({
 
         const token = sessionStorage.getItem("token");
 
+
+
+        const updateworkout = {
+            date: workoutDate,
+            duration: duration, // Set this appropriately
+            name: programTitle || "Workout",
+            image: imagePreview || "https://example.com/default-image.png",
+            numberOfStations: stations.length,
+            stations: stations.map((station, index) => ({
+                stationNumber: index + 1,
+                exercises: station.exercises.map(exercise => ({
+                    exerciseName: exercise.exerciseName,
+                    sets: exercise.levels.map(level => ({
+                        level: level.type,
+                        value: level.value,
+                        measurementType: level.measurementType
+                    }))
+                }))
+            }))
+        };
+
+        console.log(updateworkout)
+
         try {
-            const response = await axios.post('https://fox-training-f2fph3abhfgbb4hv.eastus-01.azurewebsites.net/programs/addWorkout', payload, {
-                headers: {
-                    Authorization: `Bearer ${token}`, // Include the token in the headers
-                    'Content-Type': 'application/json' // Optional: Set content type to JSON
-                }
-            });
-            console.log('Workout added successfully:', response.data);
-            await fetchPrograms();
-            onWorkoutAdded(weekNumber, new Date(workoutDate), response.data);
+            if (workoutData) {
+                // PUT request to update the workout
+                const response = await axios.put(`https://fox-training-f2fph3abhfgbb4hv.eastus-01.azurewebsites.net/programs/${programId}/workout/${workoutData._id}`, updateworkout, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                console.log('Workout updated successfully:', response.data);
+                onWorkoutAdded(weekNumber, new Date(workoutDate), response.data);
+            } else {
+                // POST request to add a new workout
+                const response = await axios.post('https://fox-training-f2fph3abhfgbb4hv.eastus-01.azurewebsites.net/programs/addWorkout', payload, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                console.log('Workout added successfully:', response.data);
+                onWorkoutAdded(weekNumber, new Date(workoutDate), response.data);
+
+            }
+            navigate('/Program');
             onClose(); // Close the modal on success
-            navigate('/program');
         } catch (error) {
-            console.error('Error adding workout:', error);
-            alert(error.response.data.message)
+            console.error('Error submitting workout:', error);
+            alert(error.response.data.message);
         }
     };
+
+
+
 
     return (
         <div>
@@ -192,8 +291,8 @@ const NewWorkoutModal = ({
                             <input
                                 type="number"
                                 placeholder="Duration in minutes"
-                                value={60} // Update accordingly or use a state
-                                onChange={(e) => {/* Handle duration change if needed */ }}
+                                value={duration} // Bind to the state
+                                onChange={handleDurationChange} // Update state on input change
                                 className="w-full p-2 border rounded-2xl focus:outline-none focus:ring focus:ring-red-500 mt-1"
                             />
                         </div>
@@ -255,6 +354,7 @@ const NewWorkoutModal = ({
                                             </div>
                                         </div>
                                     ))}
+
                                 </div>
                             ))}
                             <div className="flex justify-center mt-6">
