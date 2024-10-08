@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import ProgramSkeleton from "./ProgramSkeleton";
 import { usePrograms } from "./ProgramsContext";
 import { useLocation } from "react-router-dom"; 
+import axios from 'axios';
 
 function Program() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,11 +27,24 @@ function Program() {
     // Implement your edit logic here
   };
 
-  const handleDelete = (index) => {
-    console.log("Delete program at index:", index);
-    // Implement your delete logic here
-  };
+  const handleDelete = async (index, programId) => {
+    console.log("Delete program at index:", programId);
 
+    try {
+        const response = await axios.delete(`https://fox-training-f2fph3abhfgbb4hv.eastus-01.azurewebsites.net/programs/del/${programId}`);
+
+        if (response.status === 200) {  // Check if the deletion was successful
+            console.log(`Program with ID ${programId} deleted successfully`);
+
+            fetchPrograms();
+
+        } else {
+            console.error(`Failed to delete program with ID ${programId}:`, response.statusText);
+        }
+    } catch (error) {
+        console.error("Error deleting the program:", error.response ? error.response.data : error.message);
+    }
+};
   const handleProgramClick = (program) => {
     navigate("/program/programdetails", { state: { program } });
   };
@@ -107,7 +121,7 @@ function Program() {
                           </button>
                           <button
                             className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            onClick={() => handleDelete(index)}
+                            onClick={() => handleDelete(index, program._id)}
                           >
                             Delete
                           </button>

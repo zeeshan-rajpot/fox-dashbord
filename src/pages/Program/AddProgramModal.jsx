@@ -1,6 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { addProgram } from "../../Api/Programs";
+import toast from "react-hot-toast";  // Import toast
 
 const AddProgramModal = ({ isOpen, onClose, updateProgram }) => {
   const {
@@ -17,8 +18,10 @@ const AddProgramModal = ({ isOpen, onClose, updateProgram }) => {
       reset();
       onClose();
       updateProgram();
+      toast.success("Program added successfully!");
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
+      toast.error(error.response.data.message);
     }
   };
 
@@ -65,6 +68,25 @@ const AddProgramModal = ({ isOpen, onClose, updateProgram }) => {
             {errors.startDate && (
               <span className="text-red-500 text-sm">
                 {errors.startDate.message}
+              </span>
+            )}
+          </div>
+          
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1">End Date</label>
+            <div className="flex items-center">
+              <input
+                {...register("endDate", {
+                  required: "Start date is required",
+                })}
+                type="date"
+                className="w-full p-2 border rounded-lg focus:outline-none focus:ring focus:ring-red-500"
+                min={new Date().toISOString().split("T")[0]}
+              />
+            </div>
+            {errors.endDate && (
+              <span className="text-red-500 text-sm">
+                {errors.endDate.message}
               </span>
             )}
           </div>

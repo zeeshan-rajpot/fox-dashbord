@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios'; // Import Axios
 import { useNavigate } from 'react-router-dom';
-import {  useExercises } from "../Exercise/ExercisesContext";
-
-
 import { usePrograms } from '../Program/ProgramsContext';
+import api from "../../Api/config"
 const NewWorkoutModal = ({
     isOpen,
     onClose,
@@ -16,18 +14,53 @@ const NewWorkoutModal = ({
 }) => {
 
 
- 
- 
 
 
-    
+
+
+
     const { fetchPrograms } = usePrograms();
     const navigate = useNavigate();
 
     const [imagePreview, setImagePreview] = useState(workoutData?.image || null);
     const [programTitle, setProgramTitle] = useState(workoutData?.name || '');
 
+    const [activeInputIndex, setActiveInputIndex] = useState(null);
+
+
+    const [exercises, setExercises] = useState([]);
+    const [error, setError] = useState(null);
     const token = sessionStorage.getItem("token");
+
+
+
+    const fetchAllExercises = async () => {
+        try {
+
+            const response = await api.get('/dashboard/all-exercise', {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+                },
+            });
+
+            setExercises(response.data.exercises); // Set the fetched exercises into state
+            console.log(response.data.exercises)
+
+
+        } catch (error) {
+            console.error('Error fetching exercises:', error);
+            setError('Failed to fetch exercises');
+        }
+    };
+
+    // Use useEffect to call the function when the component mounts
+    useEffect(() => {
+        fetchAllExercises();
+    }, []);
+
+
+
+
 
 
     const [duration, setDuration] = useState(workoutData?.duration || 0);
@@ -72,11 +105,11 @@ const NewWorkoutModal = ({
                 setImagePreview(reader.result);  // Preview the image
             };
             reader.readAsDataURL(file);
-    
+
             // Prepare FormData to send to the API
             const formData = new FormData();
             formData.append('image', file);  // Append the file
-    
+
             try {
                 const response = await fetch('https://fox-training-f2fph3abhfgbb4hv.eastus-01.azurewebsites.net/programs/addWorkoutImage', {
                     method: 'POST',
@@ -85,7 +118,7 @@ const NewWorkoutModal = ({
                     },
                     body: formData,
                 });
-    
+
                 if (response.ok) {
                     const data = await response.json();
                     console.log('Image uploaded successfully', data);
@@ -120,48 +153,127 @@ const NewWorkoutModal = ({
     };
 
     // Handle exercise name input change
+
+
+
+
     const handleExerciseNameChange = (stationIndex, exerciseIndex, event) => {
         const newStations = [...stations];
-        newStations[stationIndex].exercises[exerciseIndex].exerciseName = event.target.value;
+        const inputValue = event.target.value;
+
+        // Update only the specific exerciseName for the current station/exercise
+        newStations[stationIndex].exercises[exerciseIndex].exerciseName = inputValue;
+
+        // Update stations state
         setStations(newStations);
+
+        // Show or hide the dropdown based on whether the input has text
+        setDropdownVisible(inputValue.trim() !== '');
+
+        // Set the filter text for the dropdown filtering
+        setFilterText(inputValue);
+
+        // Set the active input index to show the dropdown for this specific input field only
+        setActiveInputIndex(`${stationIndex}-${exerciseIndex}`);
     };
+
+    const toggleDropdown = (stationIndex, exerciseIndex) => {
+        // Set this specific input as active to control which dropdown is visible
+        setActiveInputIndex(`${stationIndex}-${exerciseIndex}`);
+    };
+
+    const handleDropdownSelect = (stationIndex, exerciseIndex, selectedExerciseName) => {
+        const newStations = [...stations];
+
+        // Update the exercise name of the selected input field with the clicked dropdown item
+        newStations[stationIndex].exercises[exerciseIndex].exerciseName = selectedExerciseName;
+
+        // Update stations state
+        setStations(newStations);
+
+        // Hide the dropdown after selecting an item
+        setDropdownVisible(false);
+
+        // Clear filter text
+        setFilterText('');
+    };
+
+
+
+
+
+
+
+
+
+
+    // const toggleDropdown = (stationIndex, exerciseIndex) => {
+    //     // When input is clicked, set it as the active input to toggle the dropdown visibility
+    //     setActiveInputIndex(`${stationIndex}-${exerciseIndex}`);
+    // };
+
+
+
+
+
+
 
     // Handle level input change
-    const handleInputChange = (stationIndex, exerciseIndex, levelIndex, event) => {
-        const newStations = [...stations];
-        const exercise = newStations[stationIndex].exercises[exerciseIndex];
+    const handleInputChange = (stationIndex, exerciseIndex, levelIndex, e) => {
+        const { name, value } = e.target;
 
-        if (event.target.name === 'measurementType') {
-            // Update measurementType for all levels of the exercise
-            exercise.levels.forEach(level => {
-                level.measurementType = event.target.value;
+        setStations(prevStations => {
+            return prevStations.map((station, sIndex) => {
+                if (sIndex !== stationIndex) return station;
+
+                const updatedExercises = station.exercises.map((exercise, eIndex) => {
+                    if (eIndex !== exerciseIndex) return exercise;
+
+                    const updatedLevels = exercise.levels.map((level, lIndex) => {
+                        if (lIndex !== levelIndex) return level;
+
+                        return { ...level, [name]: value }; // Update only the specific level
+                    });
+
+                    return { ...exercise, levels: updatedLevels };
+                });
+
+                return { ...station, exercises: updatedExercises };
             });
-        } else {
-            // Update only the specific field (e.g., value) for the specific level
-            exercise.levels[levelIndex][event.target.name] = event.target.value;
-        }
-
-        setStations(newStations);
+        });
     };
+
 
     // Add level to specific exercise
     const handleAddLevel = (stationIndex, exerciseIndex) => {
-        const newStations = [...stations];
-        const exercise = newStations[stationIndex].exercises[exerciseIndex];
-        if (exercise.levels.length < 3) {
-            const levelTypes = [
-                { type: 'Level 1', measurementType: 'Reps' },
-                { type: 'Level 2', measurementType: 'Reps' },
-                { type: 'Level 3', measurementType: 'Reps' }
-            ];
-            const newLevel = {
-                id: exercise.levels.length + 1,
-                ...levelTypes[exercise.levels.length],
-                value: ''
-            };
-            exercise.levels.push(newLevel);
-            setStations(newStations);
-        }
+        setStations(prevStations => {
+            return prevStations.map((station, sIndex) => {
+                if (sIndex !== stationIndex) return station; // Return other stations unchanged
+
+                const updatedExercises = station.exercises.map((exercise, eIndex) => {
+                    if (eIndex !== exerciseIndex) return exercise; // Return other exercises unchanged
+
+                    // Add new level only if less than 3 levels exist
+                    if (exercise.levels.length >= 3) return exercise;
+
+                    // Add a new level to the correct exercise
+                    return {
+                        ...exercise,
+                        levels: [
+                            ...exercise.levels,
+                            {
+                                id: Date.now(),
+                                type: `Level ${exercise.levels.length + 1}`,
+                                value: 0,
+                                measurementType: 'Reps'
+                            }
+                        ]
+                    };
+                });
+
+                return { ...station, exercises: updatedExercises };
+            });
+        });
     };
 
     // Handle form submission
@@ -250,6 +362,35 @@ const NewWorkoutModal = ({
 
 
 
+
+
+
+
+    const [isDropdownVisible, setDropdownVisible] = useState(false);
+    const [filterText, setFilterText] = useState('');
+
+
+
+
+
+
+
+
+
+    // const handleFilterChange = (e) => {
+    //     const inputValue = e.target.value.toUpperCase(); // Store the input value in a variable
+    //     setFilterText(inputValue); // Set the filter text
+
+    //     // Show or hide the dropdown based on whether inputValue has text
+    //     if (inputValue.trim()) {
+    //         setDropdownVisible(true);
+    //     } else {
+    //         setDropdownVisible(false);
+    //     }
+    // };
+
+
+
     return (
         <div>
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -307,28 +448,69 @@ const NewWorkoutModal = ({
                         )}
                     </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     {/* Render stations */}
                     {stations.map((station, stationIndex) => (
                         <div key={station.id} className="mt-4">
-                            {/* <h3 className="font-bold text-lg">Station {stationIndex + 1}</h3> */}
                             {/* Exercises section for this station */}
                             {station.exercises.map((exercise, exerciseIndex) => (
                                 <div key={exercise.id} className="mt-5">
                                     <div className="flex items-center justify-between font-semibold">
                                         <label className="block text-lg font-medium text-gray-700">Exercise Name</label>
                                         {exercise.levels.length < 3 && (
-                                            <p onClick={() => handleAddLevel(stationIndex, exerciseIndex)} className="cursor-pointer text-[#FF2800]">
+                                            <p
+                                                onClick={() => handleAddLevel(stationIndex, exerciseIndex)}
+                                                className="cursor-pointer text-[#FF2800]"
+                                            >
                                                 + Add Level
                                             </p>
                                         )}
                                     </div>
+
+                                    {/* Input for exercise name */}
                                     <input
                                         type="text"
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none"
-                                        value={exercise.exerciseName}
-                                        onChange={(e) => handleExerciseNameChange(stationIndex, exerciseIndex, e)}
+                                        value={exercise.exerciseName} // Display current exercise name or filter text
+                                        onClick={() => toggleDropdown(stationIndex, exerciseIndex)}  // Show dropdown for this input field
+                                        onChange={(e) => handleExerciseNameChange(stationIndex, exerciseIndex, e)}  // Update exercise name
                                         placeholder="Exercise Name"
                                     />
+
+                                    {/* Conditionally render the dropdown for the active input */}
+                                    {isDropdownVisible && activeInputIndex === `${stationIndex}-${exerciseIndex}` && (
+                                        <div id="myDropdown" className="dropdown-content">
+                                            {exercises
+                                                .filter((item) =>
+                                                    item.exerciseName.toUpperCase().includes(filterText.toUpperCase())  // Filter by input text
+                                                )
+                                                .map((item, index) => (
+                                                    <a
+                                                        key={index}
+
+                                                        onClick={() => handleDropdownSelect(stationIndex, exerciseIndex, item.exerciseName)}  // Handle dropdown item click
+                                                    >
+                                                        {item.exerciseName}
+                                                    </a>
+                                                ))}
+                                        </div>
+                                    )}
+
+                                    {/* Exercise levels section */}
                                     {exercise.levels.map((level, levelIndex) => (
                                         <div key={level.id} className="mt-4 flex items-center justify-between">
                                             <label className="text-md font-medium text-gray-700">{level.type}</label>
@@ -354,11 +536,13 @@ const NewWorkoutModal = ({
                                             </div>
                                         </div>
                                     ))}
-
                                 </div>
                             ))}
                             <div className="flex justify-center mt-6">
-                                <button onClick={() => handleAddExercise(stationIndex)} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-8 rounded-full">
+                                <button
+                                    onClick={() => handleAddExercise(stationIndex)}
+                                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-8 rounded-full"
+                                >
                                     Add Exercise
                                 </button>
                             </div>
