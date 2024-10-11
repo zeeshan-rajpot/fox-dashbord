@@ -221,27 +221,37 @@ const NewWorkoutModal = ({
     // Handle level input change
     const handleInputChange = (stationIndex, exerciseIndex, levelIndex, e) => {
         const { name, value } = e.target;
-
+    
         setStations(prevStations => {
             return prevStations.map((station, sIndex) => {
                 if (sIndex !== stationIndex) return station;
-
+    
                 const updatedExercises = station.exercises.map((exercise, eIndex) => {
                     if (eIndex !== exerciseIndex) return exercise;
-
-                    const updatedLevels = exercise.levels.map((level, lIndex) => {
-                        if (lIndex !== levelIndex) return level;
-
-                        return { ...level, [name]: value }; // Update only the specific level
-                    });
-
-                    return { ...exercise, levels: updatedLevels };
+    
+                    // Check if the input changed is the 'measurementType'
+                    if (name === "measurementType") {
+                        // Update 'measurementType' for all levels within the exercise
+                        const updatedLevels = exercise.levels.map(level => ({
+                            ...level,
+                            [name]: value // Set all levels to the selected measurementType
+                        }));
+                        return { ...exercise, levels: updatedLevels };
+                    } else {
+                        // Update only the specific level's value
+                        const updatedLevels = exercise.levels.map((level, lIndex) => {
+                            if (lIndex !== levelIndex) return level;
+                            return { ...level, [name]: value };
+                        });
+                        return { ...exercise, levels: updatedLevels };
+                    }
                 });
-
+    
                 return { ...station, exercises: updatedExercises };
             });
         });
     };
+    
 
 
     // Add level to specific exercise
